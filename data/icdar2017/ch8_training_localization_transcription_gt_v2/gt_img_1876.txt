@@ -1,0 +1,3 @@
+330,553,1262,567,1265,676,331,666,Latin,consommons
+636,696,1292,691,1292,904,637,908,Latin,gardois
+634,920,1294,911,1293,973,639,975,Latin,www.militantdugout.gard.fr

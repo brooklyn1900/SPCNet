@@ -62,7 +62,7 @@ def polygon_area(poly):
 # return:
 # 		mask  : [h, w, instance_num] dtype=np.uint8
 def get_annotation(im_name, anno_path, im_shape):
-	anno_fn = os.path.join(anno_path, im_name + '.txt')
+	anno_fn = os.path.join(anno_path, 'gt_' + im_name + '.txt')
 	assert os.path.exists(anno_fn), \
 			"%s dones't exists !" % anno_fn
 	with open(anno_fn, 'r') as f:

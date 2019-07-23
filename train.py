@@ -28,14 +28,14 @@ config = Config()
 def main(argv=None):
 	import os
 	os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu_list
-	if not tf.gfile.Exists(FLAGS.checkpoint_path):
+	if not tf.io.gfile.exists(FLAGS.checkpoint_path):
 		tf.gfile.MkDir(FLAGS.checkpoint_path)
 	# build network input graph
 	train_input = build_input_graph(is_training=True, config=config)
-	global_step = tf.train.get_or_create_global_step()
-	learning_rate = tf.train.polynomial_decay(FLAGS.learning_rate, global_step,\
+	global_step = tf.compat.v1.train.get_or_create_global_step()
+	learning_rate = tf.compat.v1.train.polynomial_decay(FLAGS.learning_rate, global_step,\
 					decay_steps=FLAGS.decay_steps, end_learning_rate=1e-5, power=0.9, cycle=True)
-	opt = tf.train.AdamOptimizer(learning_rate)
+	opt = tf.compat.v1.train.AdamOptimizer(learning_rate)
 	losses = build_SPC(train_input, config, is_training = True)
 	grads = opt.compute_gradients(losses['total_loss'])
 	apply_gradient_op = opt.apply_gradients(grads, global_step=global_step)
@@ -101,4 +101,5 @@ def main(argv=None):
 				saver.save(sess, FLAGS.checkpoint_path + 'model.ckpt', global_step = global_step)
 
 if __name__ == '__main__':
-	tf.app.run()
+	#tf.app.run()
+        tf.compat.v1.app.run()

@@ -6,6 +6,7 @@ from nets import utils
 from nets.config import Config
 from nets.model  import build_SPC, build_input_graph
 import os
+import imageio
 
 tf.app.flags.DEFINE_string('test_data_path', 'data/demo/', '')
 tf.app.flags.DEFINE_string('gpu_list', '0', '')
@@ -81,7 +82,7 @@ def get_result(model_path, image_list):
 				print model_path+"  "+str(ix+1)+'/'+str(len(image_list))
 				image = read_image(im_fn)
 				if image is None:
-					print imfn, " is empty !"
+					print im_fn, " is empty !"
 					continue
 				# Resize image
 				molded_image, window, scale, padding, crop = utils.resize_image(image,
