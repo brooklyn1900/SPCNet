@@ -131,37 +131,37 @@ def build_input_graph(is_training, config):
 						"to avoid fractions when downscaling and upscaling."\
 						"For example, use 256, 320, 384, 448, 512, ... etc. ")
 
-	inputs['input_image'] = tf.compat.v1.placeholder(tf.float32,\
+	inputs['input_image'] = tf.placeholder(tf.float32,\
 							shape=[None, config.IMAGE_SHAPE[0],\
 							config.IMAGE_SHAPE[1], 3],\
 							name='input_image')
 	if is_training:
 		#RPN GT
-		inputs['input_rpn_match'] = tf.compat.v1.placeholder(tf.int32,\
+		inputs['input_rpn_match'] = tf.placeholder(tf.int32,\
 							shape=[None, None, 1], name='input_rpn_match')
-		inputs['input_rpn_bbox'] = tf.compat.v1.placeholder(tf.float32,\
+		inputs['input_rpn_bbox'] = tf.placeholder(tf.float32,\
 							shape=[None, None, 4], name='input_rpn_bbox')
 		# Detection GT (class IDs, bounding boxes, and masks)
 		# 1. GT Class IDs (zero padded)
-		inputs['input_gt_class_ids'] = tf.compat.v1.placeholder(tf.int32,\
+		inputs['input_gt_class_ids'] = tf.placeholder(tf.int32,\
 							shape=[None, None], name="input_gt_class_ids")
 		# 2. GT Boxes in pixels (zero padded)
 		# [batch, MAX_GT_INSTANCES * len(gpu_list), (y1, x1, y2, x2)] 
 		# in normalized coordinates
-		inputs['input_gt_boxes'] = tf.compat.v1.placeholder(tf.float32,\
+		inputs['input_gt_boxes'] = tf.placeholder(tf.float32,\
 							shape=[None, None, 4], name="input_gt_boxes")
 		# 3. GT Masks (zero padded)
         # [batch, height, width, MAX_GT_INSTANCES * len(gpu_list)]
 	if config.USE_MINI_MASK:
-		inputs['input_gt_masks'] = tf.compat.v1.placeholder(tf.bool,\
+		inputs['input_gt_masks'] = tf.placeholder(tf.bool,\
         					shape=[None, config.MINI_MASK_SHAPE[0],\
         					config.MINI_MASK_SHAPE[1], None], name='input_gt_masks')
 	else:
-		inputs['input_gt_masks'] = tf.compat.v1.placeholder(tf.bool,\
+		inputs['input_gt_masks'] = tf.placeholder(tf.bool,\
         					shape=[None, config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1], None],\
         					name='input_gt_masks')
 		# 4. GT global text semantic segmentaion map
-	inputs['input_gt_global_masks'] = tf.compat.v1.placeholder(tf.uint8,\
+	inputs['input_gt_global_masks'] = tf.placeholder(tf.uint8,\
         					shape=[None, config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1]],\
         					name='input_gt_global_masks')
 	return inputs
@@ -179,7 +179,7 @@ def _extra_conv_arg_scope_with_bn(weight_decay=0.00001, activation_fn=tf.nn.relu
 	'decay': batch_norm_decay,
 	'epsilon': batch_norm_epsilon,
 	'scale': batch_norm_scale,
-	'updates_collections': tf.compat.v1.GraphKeys.UPDATE_OPS,
+	'updates_collections': tf.GraphKeys.UPDATE_OPS,
 	}
 
 	with slim.arg_scope(
@@ -218,12 +218,12 @@ def build_FPN(images, config, is_training, backbone='resnet50'):
 	# build FPN
 	pyramid_feature = {}
 	arg_scope = _extra_conv_arg_scope_with_bn()
-	with tf.compat.v1.variable_scope('FPN'):
+	with tf.variable_scope('FPN'):
 		with slim.arg_scope(arg_scope):
 			pyramid_feature['P5'] = slim.conv2d(pyramid['C5'], config.TOP_DOWN_PYRAMID_SIZE, 1)
 			for i in range(4, 1, -1):
 				upshape = tf.shape(pyramid['C%d' % i])
-				u = tf.compat.v1.image.resize_bilinear(pyramid_feature['P%d' % (i+1)], \
+				u = tf.image.resize_bilinear(pyramid_feature['P%d' % (i+1)], \
 					size = (upshape[1], upshape[2]))
 				c = slim.conv2d(pyramid['C%d' % i], config.TOP_DOWN_PYRAMID_SIZE, 1)
 				s = tf.add(c, u)
@@ -245,7 +245,7 @@ def TCM_module(input_feature, image_shape, scop, config):
 					activation_fn=None,
 					normalizer_fn=None,
 					weights_initializer=tf.truncated_normal_initializer(stddev=0.001)):
-		with tf.compat.v1.variable_scope(scop + "/TCM_Module"):
+		with tf.variable_scope(scop + "/TCM_Module"):
 			conv1 = slim.conv2d(input_feature, config.TOP_DOWN_PYRAMID_SIZE, [3,3])
 			conv2 = slim.conv2d(conv1, config.TOP_DOWN_PYRAMID_SIZE, [3,3])
 			# global text semantic sementation map [N, h, w, 2]
@@ -293,7 +293,7 @@ def build_RPN(pyramid_feature, image_shape, anchors_num, is_training, config):
 	rpn_bboxes = {}
 	arg_scope = _extra_conv_arg_scope_with_bn(activation_fn=None)
 	with slim.arg_scope(arg_scope):
-		with tf.compat.v1.variable_scope('rpn'):
+		with tf.variable_scope('rpn'):
 			for i in range(2, 6, 1):
 				p = 'P%d' % i # [P2, P3, P4, P5]
 				share_map = pyramid_feature[p]
