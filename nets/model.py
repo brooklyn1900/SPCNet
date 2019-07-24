@@ -253,13 +253,13 @@ def TCM_module(input_feature, image_shape, scop, config):
 			text_prob = tf.nn.softmax(conv3)
 			# saliency map [N, h, w, 1]
 			active = tf.exp(text_prob[:,:,:,1])
-			print("input_feature :",input_feature)
-			print("active :",active)
-			active = tf.expand_dims(active, -1)
-			broadcast = tf.broadcast_to(active, tf.shape(input_feature))
-			#broadcast = tf.broadcast_to(active, tf.constant([256,tf.shape(input_feature)[0],32,32]))
 
-			print("broadcast:",broadcast)
+			active = tf.expand_dims(active, -1)
+			m1 = tf.ones(tf.shape(input_feature))
+
+			#broadcast = tf.broadcast_to(active, tf.shape(input_feature))
+			broadcast = tf.multiply(active,m1)
+
 			mult = tf.multiply(input_feature, broadcast)
 			global_text_seg = tf.image.resize_bilinear(conv3, size = (image_shape[0], image_shape[1]))
 			output = tf.add(conv1, mult)
@@ -332,8 +332,11 @@ def generate_all_anchors(fpn_shapes, image_shape, config):
 	norm_anchors = utils.norm_boxes(anchors, image_shape)
 	anchors_tensor = tf.convert_to_tensor(norm_anchors)
 	# Duplicate across the batch dimension
-	batch_anchors = tf.broadcast_to(anchors_tensor,\
-					[config.IMAGES_PER_GPU, tf.shape(anchors_tensor)[0],tf.shape(anchors_tensor)[1]])
+	m1 = tf.ones([config.IMAGES_PER_GPU, tf.shape(anchors_tensor)[0],tf.shape(anchors_tensor)[1]])
+	batch_anchors = tf.multiply(anchors_tensor, m1)
+
+	#batch_anchors = tf.broadcast_to(anchors_tensor,\
+	#				[config.IMAGES_PER_GPU, tf.shape(anchors_tensor)[0],tf.shape(anchors_tensor)[1]])
 	return batch_anchors
 
 def generate_proposal(rpn_prob, rpn_bbox, anchors, proposal_count, config):
