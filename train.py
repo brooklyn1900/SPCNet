@@ -28,7 +28,8 @@ config = Config()
 def main(argv=None):
 	import os
 	os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu_list
-	if not tf.io.gfile.exists(FLAGS.checkpoint_path):
+	#if not tf.io.gfile.exists(FLAGS.checkpoint_path):
+	if not tf.gfile.Exists(FLAGS.checkpoint_path):
 		tf.gfile.MkDir(FLAGS.checkpoint_path)
 	# build network input graph
 	train_input = build_input_graph(is_training=True, config=config)
