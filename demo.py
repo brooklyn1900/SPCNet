@@ -54,7 +54,7 @@ def get_image_list(data_path = FLAGS.test_data_path):
 		for file in os.listdir(data_path):
 			fn = os.path.join(data_path, file)
 			if os.path.isfile(fn) and \
-				file.split('.')[-1] in ['bmp', 'jpg', 'gif', 'png']:
+				file.split('.')[-1] in ['bmp', 'jpg', 'gif', 'png','jpeg']:
 				image_list.append(fn)
 		return image_list
 
@@ -90,7 +90,7 @@ def get_result(model_path, image_list):
 							min_scale=config.IMAGE_MIN_SCALE, 
 							max_dim=config.IMAGE_MAX_DIM,
 							mode=config.IMAGE_RESIZE_MODE)
-				_detections, _masks = sess.run([detections, masks,gts],
+				_detections, _masks = sess.run([detections, masks],
 							feed_dict={test_input['input_image'] : molded_image[np.newaxis,...]})
 				# Inference Batch size = 1
 				final_boxes, final_class_ids, final_scores, final_masks, bound_boxes = \
